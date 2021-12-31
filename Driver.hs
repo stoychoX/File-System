@@ -1,6 +1,6 @@
 module Driver where 
 
-import FileOps(FileSystem(..), changeDir, mySystem, printSystem, printEntity, addFolder, replacePath, changeEntity, listMaybe)
+import FileOps(FileSystem(..), changeDir, mySystem, printSystem, printEntity, addFolder, changeEntity, listMaybe, dirs)
 import Data.Char(toLower)
 import Parser(parseCmd, getNextDir)
 import MyStack(push, pop, top)
@@ -22,7 +22,8 @@ eval input syst = case parseCmd input of
     Nothing -> Nothing 
     Just (rest, curr) -> case curr of 
         "cd" -> cd ("/" ++ rest) syst
-        "mkdir" -> listMaybe $ map (addFolder "" rest . Just) syst
+        "mkdir" -> let pathsAndSystems = zip syst (dirs syst) in
+           listMaybe $ map (\x -> addFolder (snd x) rest $ Just $ fst x) pathsAndSystems                
         _ -> Nothing
 
 ls :: String -> Maybe FileSystem -> String 
