@@ -19,6 +19,18 @@ headMaybe :: [a] -> Maybe a
 headMaybe (x : xs) = Just x
 headMaybe _ = Nothing
 
+-- Used for show file command
+findFile :: String -> [FileSystem] -> Maybe FileSystem
+findFile _ [] = Nothing 
+findFile name (f@(File n _) : xs) 
+    | n == name = Just f
+    | otherwise = findFile name xs
+findFile name (_ : xs) = findFile name xs
+
+printFile :: FileSystem -> String
+printFile (File name content) = "File name: " ++ name ++ "\nContent: \n" ++ content ++ "\n"
+printFile _ = "Error, not rigth type of file"
+
 -- Used for validation at mkdir and mkfile
 validName :: (String -> FileSystem -> Bool) -> String -> FileSystem -> Bool 
 validName f name (Root n xs) = n /= name && foldr (\x r -> f name x || r) False xs

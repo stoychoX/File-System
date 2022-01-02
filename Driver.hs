@@ -1,6 +1,7 @@
 module Driver where 
 
-import FileOps(FileSystem(..), changeDir, mySystem, printSystem, printEntity, validName, addFolder, changeEntity, listMaybe, dirs, addFile, isNameOfFolder, isNameOfFile)
+import FileOps(FileSystem(..), changeDir, mySystem, printSystem, findFile,
+ printEntity, validName, addFolder, changeEntity, listMaybe, dirs, addFile, isNameOfFolder, isNameOfFile, printFile)
 import Data.Char(toLower)
 import Parser(parseCmd, getNextDir, wordParser, eofParser)
 import MyStack(push, pop, top)
@@ -17,7 +18,7 @@ cd input xs = case getNextDir input of
     _ -> Nothing 
  where syst@(Root name xs') = top xs
 
--- Supports: mulriple folder additions: mkdir <folder1> <folder2> ... <folder n>
+-- Supports: multiple folder additions: mkdir <folder1> <folder2> ... <folder n>
 -- Checks for duplicate files, can't add root to the same dir twice..
 mkdir :: String -> [FileSystem] -> Maybe [FileSystem]
 mkdir input syst = case wordParser input of 
@@ -33,6 +34,7 @@ mkdir input syst = case wordParser input of
      else let paths = zip cSystem (dirs cSystem) in 
             listMaybe $ map (\(f, s) -> addFolder s cInput (Just f)) paths 
 
+-- Suports: Validation of names, no multiple file additions bc I think it's useless
 mkFile :: String -> [FileSystem] -> Maybe [FileSystem]
 mkFile input syst = case wordParser input of 
     Just (rest', fileName) -> case eofParser rest' of
@@ -63,6 +65,11 @@ pwd :: [FileSystem] -> IO()
 pwd xs = let system = printSystem xs in 
     putStrLn ("Path\n" ++ replicate (length system) '-' ++ "\n" ++ system ++ "\n")
 
+showFile :: String -> FileSystem -> String 
+showFile name (Root _ xs) = case findFile name xs of
+    Nothing -> "No such file\n"
+    (Just res) -> printFile res 
+
 repl :: [FileSystem] -> IO()
 repl xs = do
     putStr $ printSystem xs ++ "> "
@@ -77,7 +84,9 @@ repl xs = do
                                     repl xs
                 _             -> do putStrLn $ ls rest (Just (top xs))
                                     repl xs
-            _ -> repl xs
+            Just (l, "show") -> do putStrLn (showFile l (top xs))
+                                   repl xs
+            _  -> repl xs
         Just res -> repl res
 
 main :: IO()

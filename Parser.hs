@@ -54,6 +54,9 @@ pwdParser = stringP "pwd"
 lsParser :: Parser String 
 lsParser = stringP "ls"
 
+showParser :: Parser String 
+showParser = stringP "show" 
+
 catParser :: Parser String 
 catParser = stringP "cat"
 
@@ -74,7 +77,7 @@ eofParser :: String -> Maybe (String, String)
 eofParser = runParser $ spanP (/= '~') <* charP '~' <* ws
 
 cmdParser :: Parser String 
-cmdParser = cdParser <|> pwdParser <|> lsParser <|> catParser <|> rmParser <|> quitParser <|> dirParser
+cmdParser = cdParser <|> pwdParser <|> lsParser <|> catParser <|> rmParser <|> quitParser <|> dirParser <|> showParser
 
 parseCmd :: String -> Maybe (String, String)
 parseCmd = runParser (cmdParser <* ws)
