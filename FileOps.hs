@@ -15,7 +15,11 @@ headMaybe :: [a] -> Maybe a
 headMaybe (x : xs) = Just x
 headMaybe _ = Nothing
 
--- Returns dir found by name if such exists...
+-- Used for validation mkdir
+badNameOfFolder :: String -> FileSystem -> Bool 
+badNameOfFolder name (Root n xs) = n /= name && foldr (\x r -> isNameOfFolder name x || r) False xs
+
+-- Returns dir found by name if such exists
 changeDir :: String -> [FileSystem] -> Maybe FileSystem 
 changeDir name xs = headMaybe (filter (isNameOfFolder name) xs)
 
@@ -42,21 +46,22 @@ add _ _ _ = Nothing
 addFile :: String -> String -> String -> Maybe FileSystem -> Maybe FileSystem
 addFile path name val = add path (File name val)
 
+-- Used for adding folders at mkdir cmd
 addFolder :: String -> String -> Maybe FileSystem -> Maybe FileSystem
 addFolder path name = add path (Root name []) 
 
--- Used for pwd
+-- Used for printing path at pwd cmd
 printSystem :: [FileSystem] -> String
 printSystem ((Root "/" _) : xs) = "/" ++ printSystem xs
 printSystem ((Root n _) : xs) = n ++ "/" ++ printSystem xs
 printSystem _ = ""
 
--- Used for ls
+-- Used for printing files/forders at ls cmd
 printEntity :: FileSystem -> String 
 printEntity (Root n _) = "Root " ++ n ++ "\n"
 printEntity (File n _) = "File " ++ n ++ "\n"
 
--- Used for mkdir
+-- Used for validation at mkdir cmd
 listMaybe :: [Maybe a] -> Maybe [a]
 listMaybe [] = Just []
 listMaybe ((Just x) : xs) = 
@@ -65,6 +70,8 @@ listMaybe ((Just x) : xs) =
         Nothing -> Nothing 
 listMaybe _ = Nothing
 
+-- Used for generating directions (and passing them to addFolder function)
+-- at mkdir cmd
 dirs :: [FileSystem] -> [String]
 dirs (Root n _ : xs') = up xs' : dirs xs'
  where up :: [FileSystem] -> String 

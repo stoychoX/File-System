@@ -1,8 +1,8 @@
 module Driver where 
 
-import FileOps(FileSystem(..), changeDir, mySystem, printSystem, printEntity, addFolder, changeEntity, listMaybe, dirs)
+import FileOps(FileSystem(..), changeDir, mySystem, printSystem, printEntity, addFolder, changeEntity, listMaybe, dirs, badNameOfFolder)
 import Data.Char(toLower)
-import Parser(parseCmd, getNextDir)
+import Parser(parseCmd, getNextDir, wordParser)
 import MyStack(push, pop, top)
 
 cd :: String -> [FileSystem] -> Maybe [FileSystem]
@@ -17,13 +17,29 @@ cd input xs = case getNextDir input of
     _ -> Nothing 
  where syst@(Root name xs') = top xs
 
+-- Supports: mulriple folder additions: mkdir <folder1> <folder2> ... <folder n>
+-- Checks for duplicate files, can't add root to the same dir twice..
+mkdir :: String -> [FileSystem] -> Maybe [FileSystem]
+mkdir input syst = case wordParser input of 
+    Just ("", last) -> case makeDir last syst of 
+        Nothing -> Just syst
+        (Just res) -> Just res
+    Just (rest', curr') -> case makeDir curr' syst of
+        Nothing -> mkdir rest' syst
+        (Just syst') -> mkdir rest' syst'
+ where
+     makeDir :: String -> [FileSystem] -> Maybe [FileSystem]
+     makeDir cInput cSystem = if badNameOfFolder cInput (top cSystem) then Nothing 
+     else let paths = zip cSystem (dirs cSystem) in 
+            listMaybe $ map (\(f, s) -> addFolder s cInput (Just f)) paths 
+
 eval :: String -> [FileSystem] -> Maybe [FileSystem]
 eval input syst = case parseCmd input of
     Nothing -> Nothing 
     Just (rest, curr) -> case curr of 
         "cd" -> cd ("/" ++ rest) syst
-        "mkdir" -> let pathsAndSystems = zip syst (dirs syst) in
-           listMaybe $ map (\x -> addFolder (snd x) rest $ Just $ fst x) pathsAndSystems                
+        "mkdir" -> mkdir rest syst 
+        "mkfile" -> undefined    
         _ -> Nothing
 
 ls :: String -> Maybe FileSystem -> String 

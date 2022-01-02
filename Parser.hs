@@ -66,6 +66,9 @@ rmParser = stringP "rm"
 dirParser :: Parser String 
 dirParser = stringP "mkdir" <|> stringP "mkfile"
 
+wordParser :: String -> Maybe (String, String)
+wordParser = runParser $ spanP (/= ' ') <* ws
+
 cmdParser :: Parser String 
 cmdParser = cdParser <|> pwdParser <|> lsParser <|> catParser <|> rmParser <|> quitParser <|> dirParser
 
