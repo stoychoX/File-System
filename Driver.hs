@@ -10,23 +10,23 @@ cd :: String -> [FileSystem] -> Maybe [FileSystem]
 cd input xs = case getNextDir input of
     Just ("", "") -> Just xs
     Just (rest, "..") -> case pop xs of 
-        [] -> Nothing 
+        []   -> Nothing 
         back -> cd rest back
     Just (rest, curr) -> case changeDir curr xs' of
         Just res -> cd rest (push res xs)
-        _ -> Nothing
-    _ -> Nothing 
+        Nothing  -> Nothing
+    Nothing -> Nothing 
  where syst@(Root name xs') = top xs
 
 -- Supports: multiple folder additions: mkdir <folder1> <folder2> ... <folder n>
 -- Checks for duplicate files, can't add root to the same dir twice..
 mkdir :: String -> [FileSystem] -> Maybe [FileSystem]
 mkdir input syst = case wordParser input of 
-    Just ("", last) -> case makeDir last syst of 
-        Nothing -> Just syst
-        (Just res) -> Just res
+    Just ("", last)     -> case makeDir last syst of 
+        Nothing      -> Just syst
+        (Just res)   -> Just res
     Just (rest', curr') -> case makeDir curr' syst of
-        Nothing -> mkdir rest' syst
+        Nothing      -> mkdir rest' syst
         (Just syst') -> mkdir rest' syst'
  where
      makeDir :: String -> [FileSystem] -> Maybe [FileSystem]
@@ -48,8 +48,8 @@ eval :: String -> [FileSystem] -> Maybe [FileSystem]
 eval input syst = case parseCmd input of
     Nothing -> Nothing 
     Just (rest, curr) -> case curr of 
-        "cd" -> cd ("/" ++ rest) syst
-        "mkdir" -> mkdir rest syst
+        "cd"     -> cd ("/" ++ rest) syst
+        "mkdir"  -> mkdir rest syst
         "mkfile" -> mkFile rest syst
         _ -> Nothing
 
@@ -57,18 +57,19 @@ ls :: String -> Maybe FileSystem -> String
 ls input (Just syst) = case eval ("cd" ++ input) [syst] of
     (Just res) -> case top res of 
         (Root _ xs) -> concatMap printEntity xs
-        _ -> ""
-    _ -> ""
+        _           -> ""
+    _          -> ""
 ls _ _ = ""
 
 pwd :: [FileSystem] -> IO() 
 pwd xs = let system = printSystem xs in 
-    putStrLn ("Path\n" ++ replicate (length system) '-' ++ "\n" ++ system ++ "\n")
+    putStrLn $ "Path\n" ++ replicate (length system) '-' ++ "\n" ++ system ++ "\n"
 
 showFile :: String -> FileSystem -> String 
 showFile name (Root _ xs) = case findFile name xs of
-    Nothing -> "No such file\n"
-    (Just res) -> printFile res 
+    Nothing    -> "No such file\n"
+    (Just res) -> printFile res
+showFile _ _ = "Bad use of function showFile\n"
 
 repl :: [FileSystem] -> IO()
 repl xs = do

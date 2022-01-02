@@ -9,15 +9,15 @@ data FileSystem =
 
 isNameOfFolder :: String -> FileSystem -> Bool 
 isNameOfFolder name (Root name' _) = name == name'
-isNameOfFolder _ _ = False
+isNameOfFolder _ _                 = False
 
 isNameOfFile :: String -> FileSystem -> Bool 
 isNameOfFile name (File name' _) = name == name'
-isNameOfFile _ _ = False
+isNameOfFile _ _                 = False
 
 headMaybe :: [a] -> Maybe a
 headMaybe (x : xs) = Just x
-headMaybe _ = Nothing
+headMaybe _        = Nothing
 
 -- Used for show file command
 findFile :: String -> [FileSystem] -> Maybe FileSystem
@@ -27,14 +27,15 @@ findFile name (f@(File n _) : xs)
     | otherwise = findFile name xs
 findFile name (_ : xs) = findFile name xs
 
+-- Used for show file command
 printFile :: FileSystem -> String
 printFile (File name content) = "File name: " ++ name ++ "\nContent: \n" ++ content ++ "\n"
-printFile _ = "Error, not rigth type of file"
+printFile _                   = "Error, not rigth type of file"
 
 -- Used for validation at mkdir and mkfile
 validName :: (String -> FileSystem -> Bool) -> String -> FileSystem -> Bool 
 validName f name (Root n xs) = n /= name && foldr (\x r -> f name x || r) False xs
-validName _ _ _ = True
+validName _ _ _              = True
 
 -- Returns dir found by name if such exists
 changeDir :: String -> [FileSystem] -> Maybe FileSystem 
@@ -45,13 +46,13 @@ changeEntity :: FileSystem -> FileSystem -> FileSystem
 changeEntity new old@(Root n xs) = Root n (changeEntityDeep new xs) 
     where changeEntityDeep :: FileSystem -> [FileSystem] -> [FileSystem]
           changeEntityDeep new@(Root n xs) (old@(Root n' xss) : xs')
-           | n == n' = new : xs'
+           | n == n'   = new : xs'
            | otherwise = Root n' (changeEntityDeep new xss) : changeEntityDeep new xs'
           changeEntityDeep _ x = x
 
 add :: String -> FileSystem -> Maybe FileSystem -> Maybe FileSystem
 add path toAdd (Just old@(Root n xs)) = case getNextDir path of 
-    Just ("", "") -> Just (Root n (toAdd : xs))
+    Just ("", "")     -> Just (Root n (toAdd : xs))
     Just (rest, curr) -> case changeDir curr xs of 
         Nothing -> Nothing 
         Just dir@(Root path' files) -> case add rest toAdd (Just dir) of
@@ -60,6 +61,7 @@ add path toAdd (Just old@(Root n xs)) = case getNextDir path of
     Nothing -> Nothing 
 add _ _ _ = Nothing 
 
+-- Used for adding files at mkfile cmd
 addFile :: String -> String -> String -> Maybe FileSystem -> Maybe FileSystem
 addFile path name val = add path (File name val)
 
@@ -70,8 +72,8 @@ addFolder path name = add path (Root name [])
 -- Used for printing path at pwd cmd
 printSystem :: [FileSystem] -> String
 printSystem ((Root "/" _) : xs) = "/" ++ printSystem xs
-printSystem ((Root n _) : xs) = n ++ "/" ++ printSystem xs
-printSystem _ = ""
+printSystem ((Root n _) : xs)   = n ++ "/" ++ printSystem xs
+printSystem _                   = ""
 
 -- Used for printing files/forders at ls cmd
 printEntity :: FileSystem -> String 
