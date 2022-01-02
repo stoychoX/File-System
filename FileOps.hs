@@ -11,13 +11,18 @@ isNameOfFolder :: String -> FileSystem -> Bool
 isNameOfFolder name (Root name' _) = name == name'
 isNameOfFolder _ _ = False
 
+isNameOfFile :: String -> FileSystem -> Bool 
+isNameOfFile name (File name' _) = name == name'
+isNameOfFile _ _ = False
+
 headMaybe :: [a] -> Maybe a
 headMaybe (x : xs) = Just x
 headMaybe _ = Nothing
 
--- Used for validation mkdir
-badNameOfFolder :: String -> FileSystem -> Bool 
-badNameOfFolder name (Root n xs) = n /= name && foldr (\x r -> isNameOfFolder name x || r) False xs
+-- Used for validation at mkdir and mkfile
+validName :: (String -> FileSystem -> Bool) -> String -> FileSystem -> Bool 
+validName f name (Root n xs) = n /= name && foldr (\x r -> f name x || r) False xs
+validName _ _ _ = True
 
 -- Returns dir found by name if such exists
 changeDir :: String -> [FileSystem] -> Maybe FileSystem 

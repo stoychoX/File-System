@@ -1,8 +1,8 @@
 module Driver where 
 
-import FileOps(FileSystem(..), changeDir, mySystem, printSystem, printEntity, addFolder, changeEntity, listMaybe, dirs, badNameOfFolder)
+import FileOps(FileSystem(..), changeDir, mySystem, printSystem, printEntity, validName, addFolder, changeEntity, listMaybe, dirs, addFile, isNameOfFolder, isNameOfFile)
 import Data.Char(toLower)
-import Parser(parseCmd, getNextDir, wordParser)
+import Parser(parseCmd, getNextDir, wordParser, eofParser)
 import MyStack(push, pop, top)
 
 cd :: String -> [FileSystem] -> Maybe [FileSystem]
@@ -29,17 +29,26 @@ mkdir input syst = case wordParser input of
         (Just syst') -> mkdir rest' syst'
  where
      makeDir :: String -> [FileSystem] -> Maybe [FileSystem]
-     makeDir cInput cSystem = if badNameOfFolder cInput (top cSystem) then Nothing 
+     makeDir cInput cSystem = if validName isNameOfFolder cInput (top cSystem) then Nothing 
      else let paths = zip cSystem (dirs cSystem) in 
             listMaybe $ map (\(f, s) -> addFolder s cInput (Just f)) paths 
+
+mkFile :: String -> [FileSystem] -> Maybe [FileSystem]
+mkFile input syst = case wordParser input of 
+    Just (rest', fileName) -> case eofParser rest' of
+        Just(_, fileContent) -> if validName isNameOfFile fileName (top syst) then Nothing 
+        else let paths = zip syst (dirs syst) in
+            listMaybe $ map (\(f, s) -> addFile s fileName fileContent (Just f)) paths
+        Nothing -> Nothing 
+    Nothing -> Nothing
 
 eval :: String -> [FileSystem] -> Maybe [FileSystem]
 eval input syst = case parseCmd input of
     Nothing -> Nothing 
     Just (rest, curr) -> case curr of 
         "cd" -> cd ("/" ++ rest) syst
-        "mkdir" -> mkdir rest syst 
-        "mkfile" -> undefined    
+        "mkdir" -> mkdir rest syst
+        "mkfile" -> mkFile rest syst
         _ -> Nothing
 
 ls :: String -> Maybe FileSystem -> String 
