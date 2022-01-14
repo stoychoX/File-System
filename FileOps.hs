@@ -69,6 +69,16 @@ addFile path name val = add path (File name val)
 addFolder :: String -> String -> Maybe FileSystem -> Maybe FileSystem
 addFolder path name = add path (Root name []) 
 
+removeFileFromRoot :: String -> FileSystem -> FileSystem
+removeFileFromRoot name (Root n xs) = Root n (removeFile' xs)
+    where 
+         removeFile' :: [FileSystem] -> [FileSystem]
+         removeFile' (x@(File name' _) : xs')
+          | name == name' = xs'
+          | otherwise     = x : removeFile' xs'
+         removeFile' (x : xs')   = x : removeFile' xs'
+         removeFile' []          = [] 
+
 -- Used for printing path at pwd cmd
 printSystem :: [FileSystem] -> String
 printSystem ((Root "/" _) : xs) = "/" ++ printSystem xs
