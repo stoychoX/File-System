@@ -46,14 +46,8 @@ mkFile input syst = case wordParser input of
     Nothing -> Nothing
 
 cat :: String -> [FileSystem] -> [FileSystem]
-cat newName xs = catWithValidation
-    where 
-        catWithValidation :: [FileSystem]
-        catWithValidation = 
-            if validName isNameOfFile newName (top xs) 
-            then catHelper (File "" "") newName xs
-            else xs
-
+cat = catHelper (File "" "") 
+    where
         catHelper :: FileSystem -> String -> [FileSystem] -> [FileSystem] 
         catHelper currFile input syst = 
             case wordParser input of
