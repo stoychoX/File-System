@@ -1,17 +1,39 @@
 ## Functional programming project
 *Synopsis*: Program, which simulates a simple file system.
 
-### Data structures used
-In order to represent files, we'd need to implement our custom data structure. In this solution we would be using:
- ```haskell 
- data FileSystem =
-     File String String |
+### Кратко описание на решението
+Основата на решението е в начинът по който модерните файлови системи работят. Имаме файлове, които за наше улеснение съхраняваме в папки. Въпросните папки също е удобно да съхраняваме в други папки. От тази идея се вдъхновява и следния тип, който е основен за решението на задачата:
+
+```haskell 
+data FileSystem =
+     File String String     |
      Root String [FileSystem]
+     deriving(Show)
 ```
-* File <FileName\> <FileContent\>
-* Root <PathName\> <PathContent\>
+ Конструкторите приемат:
+   1. File <име на файла> <съдържание на файла>
+   2. Root <име на директорията> <съдържание на директорията>
 
+Важна част от решението е и начинът по който работим с входа. Адекватното обработване на входните данни е важно за коректността на операциите.
 
-
-
--- dependency: Googleson's article (..)
+В module Parser е събрана цялата логика, нужна за парсването на входа. Кодът в модула е частично взаимстван от:
+1. https://github.com/tsoding/haskell-json/commit/bafd97d96b792edd3e170525a7944b9f01de7e34
+2. https://www.cs.nott.ac.uk/~pszgmh/monparsing.pdf
+   
+Основните действия за манипулация на типа FileSystem са събрани в модула FileOps
+1. add - Добавя файл или папка, в зависимост от входните данни
+   1. addFile <path> <name> <content> - Добавя файл в оказаната локация, ако тя съществува. Вътрешно вика add.
+   2.  addFolder <path> <name> - Добавя папка в оказаната локация. Вътрешно вика add.
+2. removeFileFromRoot - <name> <FileSystem> - Премахва файл от корен. Ако подаденият аргумент не е от тип Root, просто връща входа.
+3. Други функции
+   1. isNameOfFolder <String> <FileSystem> -> Приема корен и връща дали в него има папка с подаденото име 
+   2. isNameOfFile <String> <FileSystem> -> Приема корен и връща дали в него има файл с подаденото име
+   3. findFile <String> [<FileSystem>] -> Намира файл в списък от системи и го извежда на стандартния изход <използван за: командата show>
+   4. printFile <FileSystem> -> Принтира файл по удобен за крайния потребител начин. Ако му се подаде корен връща грешка под формата на низ. <използван за: командата show>
+   5. validName <String> <FileSystem> -> Проверява дали името вече се съдържа в корен. Ако не се съдържа, то то е валидно за използване. <използван за: верификация в mkfile и mkdir>
+   6. changeDir <String> [<FileSystem>] -> Връща директория намерена по име, ако такава съществува. <използван за: движение по директориите в add метода>
+   7. changeEntity <FileSystem> <FileSystem> -> Променя корен намерен по име, ако такъв съществува <използван за: добавяне на елементи в add метода>
+   8. printSystem [<FileSystem>] -> Принтира списък от системи по удобен за краиния потребител начин. <използван за: принтиране в pwd командата>
+   9. printEntity <FileSystem> -> Принтира променлива от тип FileSystem по удобен за крайния потребител начин. <използван за: принтиране в командата ls>
+   10. listMaybe <[Maybe a]> -> Приема списък от Maybe стойности и връща Maybe [a]. Ако имаме Just [a], то операцията ни е успяла. При Nothing знаем, че сме се провалили.
+   11. dirs <[FileSystem]> -> Генерира списък от пътища от корена към елементите на списъка.

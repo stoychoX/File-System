@@ -9,14 +9,14 @@ import MyStack(push, pop, top, applyToTop)
 
 cd :: String -> [FileSystem] -> Maybe [FileSystem]
 cd input xs = case getNextDir input of
-    Just ("", "") -> Just xs
+    Just ("", "")     -> Just xs
     Just (rest, "..") -> case pop xs of 
         []   -> Nothing 
         back -> cd rest back
     Just (rest, curr) -> case changeDir curr xs' of
         Just res -> cd rest (push res xs)
         Nothing  -> Nothing
-    Nothing -> Nothing 
+    Nothing           -> Nothing 
  where syst@(Root name xs') = top xs
 
 -- Supports: multiple folder additions: mkdir <folder1> <folder2> ... <folder n>
@@ -74,7 +74,7 @@ showFile name (Root _ xs) = case findFile name xs of
 showFile _ _ = "Bad use of function showFile\n"
 
 removeFile :: String -> [FileSystem] -> [FileSystem]
-removeFile _ [] = []                                                                     -- Should never happen
+removeFile _ [] = [] -- Should never happen
 removeFile input xs = 
     case wordParser input of
         Just ("", last) -> applyToTop (removeFileFromRoot last) xs

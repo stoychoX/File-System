@@ -1,5 +1,9 @@
 module MyStack where
 
+headMaybe :: [a] -> Maybe a
+headMaybe (x : xs) = Just x
+headMaybe _        = Nothing
+
 push :: a -> [a] -> [a]
 push e stack = stack ++ [e]
 

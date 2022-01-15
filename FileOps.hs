@@ -1,6 +1,7 @@
 module FileOps where
 
 import Parser(getNextDir)
+import MyStack(headMaybe)
 
 data FileSystem =
      File String String     | -- File <name> <Value>, only support .txt
@@ -15,17 +16,13 @@ isNameOfFile :: String -> FileSystem -> Bool
 isNameOfFile name (File name' _) = name == name'
 isNameOfFile _ _                 = False
 
-headMaybe :: [a] -> Maybe a
-headMaybe (x : xs) = Just x
-headMaybe _        = Nothing
-
 -- Used for show file command
+-- (x : _) -> _ must always be []
 findFile :: String -> [FileSystem] -> Maybe FileSystem
-findFile _ [] = Nothing 
-findFile name (f@(File n _) : xs) 
-    | n == name = Just f
-    | otherwise = findFile name xs
-findFile name (_ : xs) = findFile name xs
+findFile name xs = 
+    case filter (isNameOfFile name) xs of 
+        [] -> Nothing
+        (x : _) -> Just x
 
 -- Used for show file command
 printFile :: FileSystem -> String
@@ -39,11 +36,11 @@ validName _ _ _              = True
 
 -- Returns dir found by name if such exists
 changeDir :: String -> [FileSystem] -> Maybe FileSystem 
-changeDir name xs = headMaybe (filter (isNameOfFolder name) xs)
+changeDir name xs = headMaybe $ filter (isNameOfFolder name) xs
 
 -- Change Root found by name if such exits.
 changeEntity :: FileSystem -> FileSystem -> FileSystem
-changeEntity new old@(Root n xs) = Root n (changeEntityDeep new xs) 
+changeEntity new old@(Root n xs) = Root n $ changeEntityDeep new xs
     where changeEntityDeep :: FileSystem -> [FileSystem] -> [FileSystem]
           changeEntityDeep new@(Root n xs) (old@(Root n' xss) : xs')
            | n == n'   = new : xs'
@@ -69,6 +66,7 @@ addFile path name val = add path (File name val)
 addFolder :: String -> String -> Maybe FileSystem -> Maybe FileSystem
 addFolder path name = add path (Root name []) 
 
+-- Used for rm cmd
 removeFileFromRoot :: String -> FileSystem -> FileSystem
 removeFileFromRoot name (Root n xs) = Root n (removeFile' xs)
     where 
@@ -78,6 +76,7 @@ removeFileFromRoot name (Root n xs) = Root n (removeFile' xs)
           | otherwise     = x : removeFile' xs'
          removeFile' (x : xs')   = x : removeFile' xs'
          removeFile' []          = [] 
+removeFileFromRoot _ x = x
 
 -- Used for printing path at pwd cmd
 printSystem :: [FileSystem] -> String
