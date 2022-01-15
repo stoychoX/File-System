@@ -2,7 +2,7 @@ module Driver where
 
 import FileOps(FileSystem(..), changeDir, mySystem, printSystem, findFile,
  printEntity, validName, addFolder, changeEntity, listMaybe, dirs, addFile,
- isNameOfFolder, isNameOfFile, printFile, removeFileFromRoot)
+ isNameOfFolder, isNameOfFile, printFile, removeFileFromRoot, isFilePath, findFileByDir, catFiles, findFileInRoot)
 import Data.Char(toLower)
 import Parser(parseCmd, getNextDir, wordParser, eofParser)
 import MyStack(push, pop, top, applyToTop)
@@ -45,6 +45,32 @@ mkFile input syst = case wordParser input of
         Nothing -> Nothing 
     Nothing -> Nothing
 
+cat :: String -> [FileSystem] -> [FileSystem]
+cat = catHelper (File "" "")
+    where 
+        catHelper :: FileSystem -> String -> [FileSystem] -> [FileSystem] 
+        catHelper currFile input syst = 
+            case wordParser input of
+                Just (fileName, ">") -> case catFiles fileName (File "" "") currFile of
+                    Nothing -> syst 
+                    Just (File n' c') -> case addFile "" n' c' (Just (top syst)) of
+                        Nothing -> syst
+                        Just res -> init syst ++ [res]
+                Just ("", "") -> syst
+                Just(rest, curr) -> if isFilePath curr then 
+                    case findFileByDir curr (head syst) of
+                        Nothing -> catHelper currFile rest syst
+                        Just file -> case catFiles "" file currFile of
+                            Nothing -> catHelper currFile rest syst
+                            Just resFile -> catHelper resFile rest syst
+                    else 
+                        case findFileInRoot curr (top syst) of 
+                            Nothing -> catHelper currFile rest syst
+                            Just file -> case catFiles "" file currFile of
+                                Nothing -> catHelper currFile rest syst
+                                Just resFile -> catHelper resFile rest syst
+                Nothing -> syst 
+
 eval :: String -> [FileSystem] -> Maybe [FileSystem]
 eval input syst = case parseCmd input of
     Nothing -> Nothing 
@@ -53,6 +79,7 @@ eval input syst = case parseCmd input of
         "mkdir"  -> mkdir rest syst
         "mkfile" -> mkFile rest syst
         "rm"     -> Just $ removeFile rest syst
+        "cat"    -> Just $ cat rest syst
         _        -> Nothing
 
 ls :: String -> Maybe FileSystem -> String 

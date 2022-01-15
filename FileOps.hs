@@ -24,6 +24,31 @@ findFile name xs =
         [] -> Nothing
         (x : _) -> Just x
 
+isFilePath :: String -> Bool 
+isFilePath ('/' : _) = True 
+isFilePath _ = False 
+
+findFolder :: String -> FileSystem -> Maybe FileSystem
+findFolder name (Root _ xs) = 
+    case filter (isNameOfFolder name) xs of 
+        [] -> Nothing
+        (x : _) -> Just x
+findFolder _ _ = Nothing
+
+findFileInRoot :: String -> FileSystem -> Maybe FileSystem
+findFileInRoot name (Root _ xs) = findFile name xs
+findFileInRoot _ _ = Nothing 
+
+findFileByDir :: String -> FileSystem -> Maybe FileSystem
+findFileByDir input x@(Root _ xs) = 
+    case getNextDir input of
+        Just ("", file) -> findFile file xs  -- found 
+        Just (rest, curr) -> case findFolder curr x of 
+            Nothing -> Nothing 
+            Just cFolder -> findFileByDir rest cFolder
+findFileByDir _ _ = Nothing 
+
+
 -- Used for show file command
 printFile :: FileSystem -> String
 printFile (File name content) = "File name: " ++ name ++ "\nContent: \n" ++ content ++ "\n"
@@ -41,11 +66,13 @@ changeDir name xs = headMaybe $ filter (isNameOfFolder name) xs
 -- Change Root found by name if such exits.
 changeEntity :: FileSystem -> FileSystem -> FileSystem
 changeEntity new old@(Root n xs) = Root n $ changeEntityDeep new xs
-    where changeEntityDeep :: FileSystem -> [FileSystem] -> [FileSystem]
-          changeEntityDeep new@(Root n xs) (old@(Root n' xss) : xs')
+    where 
+        changeEntityDeep :: FileSystem -> [FileSystem] -> [FileSystem]
+        changeEntityDeep new@(Root n xs) (old@(Root n' xss) : xs')
            | n == n'   = new : xs'
            | otherwise = Root n' (changeEntityDeep new xss) : changeEntityDeep new xs'
-          changeEntityDeep _ x = x
+        changeEntityDeep new (old : xs') = old : changeEntityDeep new xs'
+        changeEntityDeep _ x = x
 
 add :: String -> FileSystem -> Maybe FileSystem -> Maybe FileSystem
 add path toAdd (Just old@(Root n xs)) = case getNextDir path of 
@@ -95,8 +122,8 @@ listMaybe [] = Just []
 listMaybe ((Just x) : xs) = 
     case listMaybe xs of 
         (Just res) -> Just (x : res)
-        Nothing -> Nothing 
-listMaybe _ = Nothing
+        Nothing -> Nothing
+listMaybe (Nothing : xs) = listMaybe xs
 
 -- Used for generating directions (and passing them to addFolder function)
 -- at mkdir cmd
@@ -108,5 +135,13 @@ dirs (Root n _ : xs') = up xs' : dirs xs'
        up _ = "" 
 dirs _ = []
 
+catFiles :: String -> FileSystem -> FileSystem -> Maybe FileSystem
+catFiles newName (File _ cnt) (File _ cnt') = Just $ File newName (cnt ++ cnt')
+catFiles _ _ _                              = Nothing
+
+root :: FileSystem -> [FileSystem]
+root (Root _ x) = x 
+root _ = []
+
 mySystem :: FileSystem
-mySystem = Root "/" [Root "dir1" [Root "dir2" [Root "dir3" [File "No print" ""], Root "dir4" [Root "dir5" []]]], Root "dir2.2" [Root "dir3.2" []]]
+mySystem = Root "/" [File "name" "",File "nameOne" "", Root "dir1" [Root "dir2" [File "" "", Root "dir3" [File "No print" ""], Root "dir4" [Root "dir5" []]]], Root "dir2.2" [Root "dir3.2" []]]
