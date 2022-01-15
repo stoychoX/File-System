@@ -136,7 +136,7 @@ dirs (Root n _ : xs') = up xs' : dirs xs'
 dirs _ = []
 
 catFiles :: String -> FileSystem -> FileSystem -> Maybe FileSystem
-catFiles newName (File _ cnt) (File _ cnt') = Just $ File newName (cnt ++ cnt')
+catFiles newName (File _ cnt) (File _ cnt') = Just $ File newName (cnt' ++ cnt)
 catFiles _ _ _                              = Nothing
 
 root :: FileSystem -> [FileSystem]
