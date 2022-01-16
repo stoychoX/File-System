@@ -1,7 +1,6 @@
 module RemovingFiles where
 import FileSystem (FileSystem(..))
 
--- Used for rm cmd
 removeFileFromRoot :: String -> FileSystem -> FileSystem
 removeFileFromRoot name (Root n xs) = Root n (removeFile' xs)
     where 

@@ -3,11 +3,9 @@ import FileSystem (FileSystem(..))
 import MyStack (headMaybe)
 import Predicates (isNameOfFolder)
 
--- Returns dir found by name if such exists
 changeDir :: String -> [FileSystem] -> Maybe FileSystem 
 changeDir name xs = headMaybe $ filter (isNameOfFolder name) xs
 
--- Change Root found by name if such exits.
 changeEntity :: FileSystem -> FileSystem -> FileSystem
 changeEntity new old@(Root n xs) = Root n $ changeEntityDeep new xs
     where 
