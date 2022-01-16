@@ -14,7 +14,6 @@ isFilePath :: String -> Bool
 isFilePath ('/' : _) = True 
 isFilePath _ = False 
 
--- Used for validation at mkdir and mkfile
 validName :: (String -> FileSystem -> Bool) -> String -> FileSystem -> Bool 
 validName f name (Root n xs) = n /= name && foldr (\x r -> f name x || r) False xs
 validName _ _ _              = True

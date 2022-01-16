@@ -25,8 +25,6 @@ cd input xs = case getNextDir input of
     Nothing           -> Nothing 
  where syst@(Root name xs') = top xs
 
--- Supports: multiple folder additions: mkdir <folder1> <folder2> ... <folder n>
--- Checks for duplicate files, can't add root to the same dir twice..
 mkdir :: String -> [FileSystem] -> Maybe [FileSystem]
 mkdir input syst = case wordParser input of 
     Just ("", last)     -> case makeDir last syst of 
@@ -41,7 +39,6 @@ mkdir input syst = case wordParser input of
      else let paths = zip cSystem (dirs cSystem) in 
             listMaybe $ map (\(f, s) -> addFolder s cInput (Just f)) paths 
 
--- Suports: Validation of names, no multiple file additions bc I think it's useless
 mkFile :: String -> [FileSystem] -> Maybe [FileSystem]
 mkFile input syst = case wordParser input of 
     Just (rest', fileName) -> case eofParser rest' of

@@ -2,7 +2,6 @@ module ExtendedOperations where
 
 import FileSystem(FileSystem(..))
 
--- Used for validation at mkdir cmd
 listMaybe :: [Maybe a] -> Maybe [a]
 listMaybe [] = Just []
 listMaybe ((Just x) : xs) = 
@@ -11,8 +10,6 @@ listMaybe ((Just x) : xs) =
         Nothing -> Nothing
 listMaybe (Nothing : xs) = listMaybe xs
 
--- Used for generating directions (and passing them to addFolder function)
--- at mkdir cmd
 dirs :: [FileSystem] -> [String]
 dirs (Root n _ : xs') = up xs' : dirs xs'
  where up :: [FileSystem] -> String 

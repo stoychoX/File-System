@@ -10,4 +10,4 @@ removeFileFromRoot name (Root n xs) = Root n (removeFile' xs)
           | otherwise     = x : removeFile' xs'
          removeFile' (x : xs')   = x : removeFile' xs'
          removeFile' []          = [] 
-removeFileFromRoot _ x = x
+removeFileFromRoot _ x             = x

@@ -72,7 +72,6 @@ dirParser = stringP "mkdir" <|> stringP "mkfile"
 wordParser :: String -> Maybe (String, String)
 wordParser = runParser $ spanP (/= ' ') <* ws
 
--- End of file is marked by: ~
 eofParser :: String -> Maybe (String, String) 
 eofParser = runParser $ spanP (/= '~') <* charP '~' <* ws
 
