@@ -1,11 +1,17 @@
 module Driver where 
 
-import FileOps(FileSystem(..), changeDir, mySystem, printSystem, findFile,
- printEntity, validName, addFolder, changeEntity, listMaybe, dirs, addFile,
- isNameOfFolder, isNameOfFile, printFile, removeFileFromRoot, isFilePath, findFileByDir, catFiles, findFileInRoot)
+import FileOps(FileSystem(..))
 import Data.Char(toLower)
 import Parser(parseCmd, getNextDir, wordParser, eofParser)
 import MyStack(push, pop, top, applyToTop)
+import ChangingDirections (changeDir)
+import Predicates
+    ( isNameOfFolder, isNameOfFile, isFilePath, validName )
+import Adding (addFile, addFolder)
+import RemovingFiles (removeFileFromRoot)
+import ExtendedOperations (listMaybe, dirs, catFiles)
+import Finders (findFile, findFileInRoot, findFileByDir)
+import Output (printFile, printSystem, printEntity)
 
 cd :: String -> [FileSystem] -> Maybe [FileSystem]
 cd input xs = case getNextDir input of
@@ -129,3 +135,6 @@ repl xs = do
 
 main :: IO()
 main = repl [mySystem]
+
+mySystem :: FileSystem
+mySystem = Root "/" [File "name" "",File "nameOne" "", Root "dir1" [Root "dir2" [File "" "", Root "dir3" [File "No print" ""], Root "dir4" [Root "dir5" []]]], Root "dir2.2" [Root "dir3.2" []]]
