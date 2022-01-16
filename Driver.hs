@@ -3,7 +3,7 @@ module Driver where
 import FileSystem(FileSystem(..))
 import Data.Char(toLower)
 import Parser(parseCmd, getNextDir, wordParser, eofParser)
-import MyStack(push, pop, top, applyToTop)
+import MyStack(push, pop, top)
 import ChangingDirections (changeDir, changeEntity)
 import Predicates
     ( isNameOfFolder, isNameOfFile, isFilePath, validName )
