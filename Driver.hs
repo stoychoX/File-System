@@ -4,11 +4,11 @@ import FileSystem(FileSystem(..))
 import Data.Char(toLower)
 import Parser(parseCmd, getNextDir, wordParser, eofParser)
 import MyStack(push, pop, top, applyToTop)
-import ChangingDirections (changeDir)
+import ChangingDirections (changeDir, changeEntity)
 import Predicates
     ( isNameOfFolder, isNameOfFile, isFilePath, validName )
 import Adding (addFile, addFolder)
-import RemovingFiles (removeFileFromRoot)
+import RemovingFiles (removeFileFromRoot, removeFileFromPath)
 import ExtendedOperations (listMaybe, dirs, catFiles)
 import Finders (findFile, findFileInRoot, findFileByDir)
 import Output (printFile, printSystem, printEntity)
@@ -104,11 +104,13 @@ showFile name (Root _ xs) = case findFile name xs of
 showFile _ _ = "Bad use of function showFile\n"
 
 removeFile :: String -> [FileSystem] -> [FileSystem]
-removeFile _ [] = [] -- Should never happen
+removeFile _ [] = [] -- this should never happen
 removeFile input xs = 
     case wordParser input of
-        Just ("", last) -> applyToTop (removeFileFromRoot last) xs
-        Just (rest, curr) -> removeFile rest $ applyToTop (removeFileFromRoot curr) xs
+        Just ("", last) -> let paths = zip xs (map (\x -> x ++ "/" ++ last) (dirs xs)) in
+            map (\(f, s) -> removeFileFromPath s f) paths 
+        Just (rest, curr) -> let paths = zip xs (map (\x -> x ++ "/" ++ curr) (dirs xs)) in 
+            removeFile rest $ map (\(f, s) -> removeFileFromPath s f) paths
         Nothing -> xs
 
 repl :: [FileSystem] -> IO()

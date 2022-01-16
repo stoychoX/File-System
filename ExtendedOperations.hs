@@ -21,3 +21,7 @@ dirs _ = []
 catFiles :: String -> FileSystem -> FileSystem -> Maybe FileSystem
 catFiles newName (File _ cnt) (File _ cnt') = Just $ File newName (cnt' ++ cnt)
 catFiles _ _ _                              = Nothing
+
+nameOfRoot :: FileSystem -> Maybe String 
+nameOfRoot (Root n _) = Just n
+nameOfRoot _ = Nothing 
