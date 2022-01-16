@@ -1,6 +1,6 @@
 module Adding where
 
-import FileOps (FileSystem(..))
+import FileSystem (FileSystem(..))
 import ChangingDirections ( changeDir, changeEntity )
 import Parser (getNextDir)
 

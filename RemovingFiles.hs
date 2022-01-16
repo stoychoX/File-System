@@ -1,5 +1,5 @@
 module RemovingFiles where
-import FileOps (FileSystem(..))
+import FileSystem (FileSystem(..))
 
 -- Used for rm cmd
 removeFileFromRoot :: String -> FileSystem -> FileSystem

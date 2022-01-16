@@ -1,6 +1,6 @@
 module Driver where 
 
-import FileOps(FileSystem(..))
+import FileSystem(FileSystem(..))
 import Data.Char(toLower)
 import Parser(parseCmd, getNextDir, wordParser, eofParser)
 import MyStack(push, pop, top, applyToTop)

@@ -1,5 +1,5 @@
 module ChangingDirections where
-import FileOps (FileSystem(..))
+import FileSystem (FileSystem(..))
 import MyStack (headMaybe)
 import Predicates (isNameOfFolder)
 

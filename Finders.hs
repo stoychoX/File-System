@@ -1,6 +1,6 @@
 module Finders where 
 
-import FileOps(FileSystem(..))
+import FileSystem(FileSystem(..))
 import Predicates (isNameOfFolder, isNameOfFile)
 import Parser (getNextDir)
 

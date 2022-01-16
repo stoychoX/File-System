@@ -1,6 +1,6 @@
 module Output where
 
-import FileOps(FileSystem(..))
+import FileSystem(FileSystem(..))
 
 -- Used for show file command
 printFile :: FileSystem -> String

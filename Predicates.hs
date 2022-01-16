@@ -1,6 +1,6 @@
 module Predicates where
 
-import FileOps (FileSystem(..))
+import FileSystem (FileSystem(..))
 
 isNameOfFolder :: String -> FileSystem -> Bool 
 isNameOfFolder name (Root name' _) = name == name'

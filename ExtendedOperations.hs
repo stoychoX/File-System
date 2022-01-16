@@ -1,6 +1,6 @@
 module ExtendedOperations where
 
-import FileOps(FileSystem(..))
+import FileSystem(FileSystem(..))
 
 -- Used for validation at mkdir cmd
 listMaybe :: [Maybe a] -> Maybe [a]
