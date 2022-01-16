@@ -59,9 +59,9 @@ cat = catHelper (File "" "")
             case wordParser input of
                 Just (fileName, ">") -> case catFiles fileName (File "" "") currFile of
                     Nothing -> syst 
-                    Just (File n' c') -> case addFile "" n' c' (Just (top syst)) of
+                    Just (File n' c') -> case mkFile (n' ++ " " ++ c' ++ "~") syst of
                         Nothing -> syst
-                        Just res -> init syst ++ [res]
+                        Just res -> res
                 Just ("", "") -> syst
                 Just(rest, curr) -> if isFilePath curr then 
                     case findFileByDir curr (head syst) of
