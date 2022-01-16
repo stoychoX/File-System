@@ -14,6 +14,3 @@ pop (x : xs) = x : pop xs
 top :: [a] -> a
 top [x]      = x
 top (x : xs) = top xs
-
-applyToTop :: (a -> a) -> [a] -> [a]
-applyToTop f xs = init xs ++ [f (top xs)]
