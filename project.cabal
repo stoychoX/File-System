@@ -1,0 +1,43 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.34.4.
+--
+-- see: https://github.com/sol/hpack
+
+name:           project
+version:        0.0.0
+build-type:     Simple
+
+library
+  exposed-modules:
+      Adding
+      ChangingDirections
+      Driver
+      ExtendedOperations
+      FileSystem
+      Finders
+      MyStack
+      Output
+      Parser
+      Predicates
+      RemovingFiles
+  other-modules:
+      Paths_project
+  hs-source-dirs:
+      src
+  ghc-options: -Werror -Wincomplete-patterns -Wunused-binds -Wunused-matches -Wmissing-signatures -Wname-shadowing -Wincomplete-uni-patterns
+  build-depends:
+      base >=4.7 && <5
+  default-language: Haskell2010
+
+executable my-ultra-cool-project
+  main-is: Main.hs
+  other-modules:
+      Paths_project
+  hs-source-dirs:
+      app
+  ghc-options: -Werror -Wincomplete-patterns -Wunused-binds -Wunused-matches -Wmissing-signatures -Wname-shadowing -Wincomplete-uni-patterns -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , project
+  default-language: Haskell2010

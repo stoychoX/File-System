@@ -11,7 +11,7 @@ listMaybe ((Just x) : xs) =
 listMaybe (Nothing : xs) = listMaybe xs
 
 dirs :: [FileSystem] -> [String]
-dirs (Root n _ : xs') = up xs' : dirs xs'
+dirs (Root _ _ : xs') = up xs' : dirs xs'
  where up :: [FileSystem] -> String 
        up (Root "/" _ : xss) = "/" ++ up xss
        up (Root n _ : xss) = "/" ++ n ++ up xss

@@ -14,25 +14,27 @@ import Finders (findFile, findFileInRoot, findFileByDir)
 import Output (printFile, printSystem, printEntity)
 
 cd :: String -> [FileSystem] -> Maybe [FileSystem]
-cd input xs = case getNextDir input of
-    Just ("", "")     -> Just xs
-    Just (rest, "..") -> case pop xs of 
-        []   -> Nothing 
-        back -> cd rest back
-    Just (rest, curr) -> case changeDir curr xs' of
-        Just res -> cd rest (push res xs)
-        Nothing  -> Nothing
-    Nothing           -> Nothing 
- where syst@(Root name xs') = top xs
+cd input xs = case top xs of 
+    (Root _ xs') -> case getNextDir input of
+        Just ("", "")     -> Just xs
+        Just (rest, "..") -> case pop xs of 
+            []   -> Nothing 
+            back -> cd rest back
+        Just (rest, curr) -> case changeDir curr xs' of
+            Just res -> cd rest (push res xs)
+            Nothing  -> Nothing
+        Nothing           -> Nothing 
+    _           -> Nothing 
 
 mkdir :: String -> [FileSystem] -> Maybe [FileSystem]
 mkdir input syst = case wordParser input of 
-    Just ("", last)     -> case makeDir last syst of 
+    Just ("", last')     -> case makeDir last' syst of 
         Nothing      -> Just syst
         (Just res)   -> Just res
     Just (rest', curr') -> case makeDir curr' syst of
         Nothing      -> mkdir rest' syst
         (Just syst') -> mkdir rest' syst'
+    Nothing             -> Nothing 
  where
      makeDir :: String -> [FileSystem] -> Maybe [FileSystem]
      makeDir cInput cSystem = if validName isNameOfFolder cInput (top cSystem) then Nothing 
@@ -55,10 +57,10 @@ cat = catHelper (File "" "")
         catHelper currFile input syst = 
             case wordParser input of
                 Just (fileName, ">") -> case catFiles fileName (File "" "") currFile of
-                    Nothing -> syst 
                     Just (File n' c') -> case mkFile (n' ++ " " ++ c' ++ "~") syst of
                         Nothing -> syst
                         Just res -> res
+                    _ -> syst 
                 Just ("", "") -> syst
                 Just(rest, curr) -> if isFilePath curr then 
                     case findFileByDir curr (head syst) of
@@ -107,7 +109,7 @@ removeFile :: String -> [FileSystem] -> [FileSystem]
 removeFile _ [] = [] -- this should never happen
 removeFile input xs = 
     case wordParser input of
-        Just ("", last) -> let paths = zip xs (map (\x -> x ++ "/" ++ last) (dirs xs)) in
+        Just ("", last') -> let paths = zip xs (map (\x -> x ++ "/" ++ last') (dirs xs)) in
             map (\(f, s) -> removeFileFromPath s f) paths 
         Just (rest, curr) -> let paths = zip xs (map (\x -> x ++ "/" ++ curr) (dirs xs)) in 
             removeFile rest $ map (\(f, s) -> removeFileFromPath s f) paths

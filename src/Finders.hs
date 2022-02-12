@@ -28,4 +28,5 @@ findFileByDir input x@(Root _ xs) =
         Just (rest, curr) -> case findFolder curr x of 
             Nothing -> Nothing 
             Just cFolder -> findFileByDir rest cFolder
+        Nothing -> Nothing 
 findFileByDir _ _ = Nothing 

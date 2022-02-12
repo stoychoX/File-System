@@ -14,8 +14,9 @@ changeEntity new old@(Root n xs) =
         Just name' -> if name' == n then new else Root n $ changeEntityDeep new xs
     where 
         changeEntityDeep :: FileSystem -> [FileSystem] -> [FileSystem]
-        changeEntityDeep new@(Root n xs) (old@(Root n' xss) : xs')
-           | n == n'   = new : xs'
-           | otherwise = Root n' (changeEntityDeep new xss) : changeEntityDeep new xs'
-        changeEntityDeep new (old : xs') = old : changeEntityDeep new xs'
+        changeEntityDeep deepNew@(Root name _) ((Root n' xss) : xs')
+           | name == n'   = deepNew : xs'
+           | otherwise    = Root n' (changeEntityDeep deepNew xss) : changeEntityDeep deepNew xs'
+        changeEntityDeep new' (old' : xs') = old' : changeEntityDeep new' xs'
         changeEntityDeep _ x = x
+changeEntity _ old = old
